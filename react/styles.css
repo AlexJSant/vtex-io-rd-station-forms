@@ -1,0 +1,49 @@
+/* CSS Modules — classe exposta para o Store Theme estilizar o bloco */
+.container {
+  width: 100%;
+}
+
+.title {
+  margin: 0 0 1rem;
+}
+
+.formWrapper {
+  width: 100%;
+  min-height: 1px;
+}
+
+/* Inputs e botões gerados pela RD dentro do container (escopo via :global) */
+.container :global(input),
+.container :global(textarea),
+.container :global(select) {
+  box-sizing: border-box;
+}
+
+.container :global(button) {
+  box-sizing: border-box;
+}
+
+.container :global(form) {
+  width: 100%;
+}
+
+/* Estados opcionais usados pelo componente */
+.loading {
+  padding: 1rem 0;
+}
+
+.error {
+  padding: 1rem 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

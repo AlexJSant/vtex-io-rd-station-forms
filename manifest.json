@@ -1,0 +1,20 @@
+{
+  "vendor": "sunhouse",
+  "name": "rd-station-forms",
+  "version": "0.1.0",
+  "title": "RD Station Forms (Store Framework)",
+  "description": "Componente RDStationForm para incorporar formulários RD Station diretamente no DOM da loja VTEX IO.",
+  "builders": {
+    "react": "3.x",
+    "messages": "1.x",
+    "docs": "0.x",
+    "styles": "2.x",
+    "store": "0.x"
+  },
+  "dependencies": {},
+  "registries": [
+    "smartcheckout"
+  ],
+  "policies": [],
+  "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
+}
