@@ -1,7 +1,7 @@
 {
   "vendor": "sunhouse",
   "name": "rd-station-forms",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "title": "RD Station Forms App",
   "description": "RDStationForm component to embed RD Station forms directly into the VTEX IO store DOM.",
   "builders": {
