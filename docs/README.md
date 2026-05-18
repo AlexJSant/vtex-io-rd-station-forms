@@ -1,8 +1,6 @@
-⚠️ Referencia importante para praticamente qualquer projeto de app VTEX IO: https://ericstacks.com/erro-ao-instalar-dependencias-no-vtex-io-expect-incompativel-com-node-js/
+📢 Use this project, [contribute](https://github.com/AlexJSant/vtex-io-rd-station-forms) to it or open issues to help evolve it using [Store Discussion](https://github.com/vtex-apps/store-discussion).
 
-📢 Use this project, [contribute](https://github.com/{OrganizationName}/{AppName}) to it or open issues to help evolve it using [Store Discussion](https://github.com/vtex-apps/store-discussion).
-
-# APP NAME
+# RD Station Forms
 
 <!-- DOCS-IGNORE:start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
@@ -10,84 +8,136 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- DOCS-IGNORE:end -->
 
-Under the app's name, you should explain the topic, giving a **brief description** of its **functionality** in a store when installed.
+**RD Station Forms** is a VTEX IO Store Framework app that embeds [RD Station](https://www.rdstation.com/) lead-capture forms directly into your storefront DOM—without iframes, inline scripts, or `dangerouslySetInnerHTML`.
 
-Next, **add media** (either an image of a GIF) with the rendered components, so that users can better understand how the app works in practice. 
+When installed, the app exposes a single store block that:
+
+- Loads the official RD Station Forms script once per page (`rdstation-forms.min.js`).
+- Mounts a container element whose `id` matches the embed code generated in the RD Station panel.
+- Calls `new RDStationForms(formId, identifier).createForm()` so fields and validation behave exactly as configured in RD Station.
+- Shows optional loading and user-friendly error states while keeping technical error details available to screen readers.
+- Cleans up injected DOM on unmount, which keeps behavior predictable during VTEX SPA navigation.
+
+Use it on landing pages, footers, or any template where you already rely on RD Station forms and want them rendered natively inside your theme layout.
 
 ![Media Placeholder](https://user-images.githubusercontent.com/52087100/71204177-42ca4f80-227e-11ea-89e6-e92e65370c69.png)
 
-## Configuration 
+## Configuration
 
-In this section, you first must **add the primary instructions** that will allow users to use the app's blocks in their store, such as:
+### 1. Install the app
 
-1. Adding the app as a theme dependency in the `manifest.json` file;
-2. Declaring the app's main block in a given theme template or inside another block from the theme.
+Add the app as a dependency in your **store theme** `manifest.json`:
 
-Remember to add a table with all blocks exported by the app and their descriptions. You can verify an example of it on the [Search Result documentation](https://vtex.io/docs/components/all/vtex.search-result@3.56.1/). 
+```json
+{
+  "dependencies": {
+    "{vendor}.rd-station-forms": "0.x"
+  }
+}
+```
 
-Next, add the **props table** containing your block's props. 
+Then link or publish the app in your account (`vtex link` during development, or install from the VTEX App Store / workspace when available).
 
-If the app exports more than one block, create several tables - one for each block. For example:
+### 2. Add the block to a template
 
-### `block-1` props
+Declare the block in a theme template (for example `store/blocks/landing.jsonc`) or inside another block:
 
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
+```json
+{
+  "rd-station-form#newsletter": {
+    "props": {
+      "formId": "your-rd-embed-element-id",
+      "identifier": "",
+      "showLoading": true,
+      "loadingLabel": "Loading form…",
+      "errorFallbackLabel": "Unable to load the form. Please try again shortly."
+    }
+  }
+}
+```
 
+You can also configure the block through **Site Editor**; the block schema is defined on the React component.
 
-### `block-2` props
+### 3. Match RD Station embed settings
 
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
+In the RD Station panel, copy the **element id** used as the first argument of `new RDStationForms('…', …)` and paste it into the block `formId` prop. If your snippet includes a second constructor argument (for example a UA identifier), set it in `identifier`.
 
-Prop types are: 
+> **Important:** Each block on the same page must use a **unique** `formId`. Duplicate ids break `getElementById` and may cause undefined RD Station behavior; the component logs a console warning when duplicates are detected.
 
-- `string` 
-- `enum` 
-- `number` 
-- `boolean` 
-- `object` 
-- `array` 
+### Blocks
 
-When documenting a prop whose type is `object` or `array` another prop table will be needed. You can create it following the example below:
+| Block name | Description |
+| ---------- | ----------- |
+| `rd-station-form` | Embeds one RD Station form in the storefront DOM. Loads the RD script once, mounts `#formId`, and runs `createForm()`. Supports loading/error UI and optional `className` on the wrapper. |
 
-- `propName` object:
+### `rd-station-form` props
 
-| Prop name    | Type            | Description    | Default value                                                                                                                               |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | 
-| `XXXXX`      | `XXXXXX`       | XXXXXXXX         | `XXXXXX`        |
+| Prop name | Type | Description | Default value |
+| --------- | ---- | ----------- | ------------- |
+| `formId` | `string` | RD embed element id—the first argument of `new RDStationForms(...)`. Must match the id from your RD snippet and be unique per block on the page. | `""` |
+| `identifier` | `string` | Optional second argument of the RD constructor (for example UA), when your account snippet uses it. | `""` |
+| `className` | `string` | Extra CSS classes applied to the root `<section>` wrapper. Useful in theme JSON; not exposed in Site Editor schema. | — |
+| `showLoading` | `boolean` | When `true`, shows a loading message until `createForm()` completes. | `true` |
+| `loadingLabel` | `string` | Text shown while the form is loading. | `Carregando formulário…` |
+| `errorFallbackLabel` | `string` | User-facing message when script load or initialization fails. Technical details are exposed in a screen-reader-only element. | `Não foi possível carregar o formulário. Tente novamente em instantes.` |
+| `onSuccess` | `function` | Callback invoked after a successful `createForm()`. For programmatic use only—not configurable in Site Editor. | — |
 
+Prop types are:
 
-Remember to also use this Configuration section to  **showcase any necessary disclaimer** related to the app and its blocks, such as the different behavior it may display during its configuration. 
+- `string`
+- `enum`
+- `number`
+- `boolean`
+- `object`
+- `array`
 
-## Modus Operandi *(not mandatory)*
+> **Disclaimer:** Default loading and error copy ship in Portuguese to match the initial store locale. Override `loadingLabel` and `errorFallbackLabel` in the theme or Site Editor for other languages.
 
-There are scenarios in which an app can behave differently in a store, according to how it was added to the catalog, for example. It's crucial to go through these **behavioral changes** in this section, allowing users to fully understand the **practical application** of the app in their store.
+> **Disclaimer:** A local `title` prop above the form is intentionally disabled—the RD form already includes headings. The prop and schema entry remain commented in source for a possible future release.
 
-If you feel compelled to give further details about the app, such as it's **relationship with the VTEX admin**, don't hesitate to use this section. 
+## Modus Operandi
+
+### Script loading
+
+The app injects a single async script from RD Station’s stable CDN:
+
+`https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js`
+
+- If the tag already exists in the document, the loader reuses it.
+- A global promise (`window.__rdStationFormsScriptPromise`) prevents duplicate downloads when multiple blocks mount on the same page.
+- After load, the app polls until `window.RDStationForms` is available (15s timeout).
+
+### Form lifecycle
+
+1. The block renders a `<section>` with an inner `<div id={formId} role="main">` where RD Station injects the form.
+2. After the script is ready, children of that container are cleared and `new RDStationForms(formId, identifier ?? '').createForm()` runs.
+3. On unmount (route change or block removal), injected children are removed from the container.
+4. A per-`formId` mount counter tolerates React Strict Mode double-mounting without breaking cleanup.
+
+### CORS and environments
+
+RD Station’s integrated script fetches template data from `forms.rdstation.com.br`. The browser enforces CORS on that origin. Common situations:
+
+- **Development workspace** (`*.myvtex.com`) and **production domain** are different origins; RD must allow each origin you use.
+- Admin login does not change the storefront origin—only the URL the customer visits matters.
+- Placeholder or invalid `formId` values may return 404 from RD APIs; always use the real id from your RD Station account.
+- If requests are blocked, confirm with RD Station support that your VTEX origins are allowed, or evaluate RD’s alternative embed options (for example iframe-based embeds trade off DOM integration for different origin behavior).
+
+### Site Editor vs theme JSON
+
+Props listed in the component **schema** (`formId`, `identifier`, `showLoading`, `loadingLabel`, `errorFallbackLabel`) appear in Site Editor. Use theme JSON for `className` and any future programmatic hooks such as `onSuccess`.
 
 ## Customization
 
-The first thing that should be present in this section is the sentence below, showing users the recipe pertaining to CSS customization in apps:
+In order to apply CSS customizations in this and other blocks, follow the instructions given in the recipe on [Using CSS Handles for store customization](https://vtex.io/docs/recipes/style/using-css-handles-for-store-customization).
 
-`In order to apply CSS customizations in this and other blocks, follow the instructions given in the recipe on [Using CSS Handles for store customization](https://vtex.io/docs/recipes/style/using-css-handles-for-store-customization).`
+No CSS Handles are available yet for the app customization.
 
-Thereafter, you should add a single column table with the available CSS handles for the app, like the one below. Note that the Handles must be ordered alphabetically.
+The block uses **CSS Modules** instead of VTEX CSS handles. You can still style it by:
 
-| CSS Handles |
-| ----------- | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` | 
-| `XXXXX` |
-
-
-If there are none, add the following sentence instead:
-
-`No CSS Handles are available yet for the app customization.`
+- Passing `className` on the block in your theme to target the root wrapper.
+- Using the stable attribute `data-rd-station-form-wrapper` on the root `<section>`.
+- Overriding global selectors for RD-injected markup under the block container (the app ships baseline `:global` rules for `form`, `input`, `textarea`, `select`, and `button` inside `.container`).
 
 <!-- DOCS-IGNORE:start -->
 
@@ -105,12 +155,3 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
 
 <!-- DOCS-IGNORE:end -->
-
----- 
-
-Check out some documentation models that are already live: 
-- [Breadcrumb](https://github.com/vtex-apps/breadcrumb)
-- [Image](https://vtex.io/docs/components/general/vtex.store-components/image)
-- [Condition Layout](https://vtex.io/docs/components/all/vtex.condition-layout@1.1.6/)
-- [Add To Cart Button](https://vtex.io/docs/components/content-blocks/vtex.add-to-cart-button@0.9.0/)
-- [Store Form](https://vtex.io/docs/components/all/vtex.store-form@0.3.4/)

@@ -1,9 +1,9 @@
 {
   "vendor": "sunhouse",
   "name": "rd-station-forms",
-  "version": "0.1.0",
-  "title": "RD Station Forms (Store Framework)",
-  "description": "Componente RDStationForm para incorporar formulários RD Station diretamente no DOM da loja VTEX IO.",
+  "version": "0.0.1",
+  "title": "RD Station Forms App",
+  "description": "RDStationForm component to embed RD Station forms directly into the VTEX IO store DOM.",
   "builders": {
     "react": "3.x",
     "messages": "1.x",
